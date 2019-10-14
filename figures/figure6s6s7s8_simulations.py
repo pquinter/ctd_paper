@@ -18,6 +18,9 @@ try:
     burstprops_paramarr = pd.read_csv('./data/gillespie_burstprops_paramarray.csv', comment='#')
 except FileNotFoundError:
     paramarraynotfound=1
+    print("""
+    Stochastic simulations data with parameter array not found, skipping related figures.
+    """)
     pass
 samples = pd.read_csv('./data/gillespie_samples.csv', comment='#')
 outdir = './figures/output/'
@@ -72,11 +75,7 @@ axes = plot.ecdfplot(inter_burst[inter_burst.inter_burst>5], 'inter_burst')# sav
 [ax.set(xlim=(0,12), xlabel='Inter-Burst Duration') for ax in axes]
 plt.savefig(outdir+'FigS7_GillespieECDFinterburst.svg')
 
-if paramarraynotfound:
-    print("""
-    Stochastic simulations data with parameter array not found, skipping related figures.
-    """)
-    pass
+if paramarraynotfound: pass
 else:
     # get interburst time for parameter array
     groupby = ['model','ctd','var_p','var_p_val','run']
