@@ -6,7 +6,7 @@ Generate data that can be visualized: extract features from imaging, sequencing 
 ## figures
 Generate all main and supplementary figures. Almost every figure\*, can be generated and saved in `figures/output` by running `python figures/figureX.py` from this directory, where X is the figure number.
 
-\*Except for figures that require a files larger than github's 100MB size limit (Figures 6F, S2 and S8).
+\*Except for figures that require a file larger than github's 100MB size limit (Figures 6F, S2 and S8).
 ## utils
 Supporting functions for data analysis.
 ## data
