@@ -14,7 +14,11 @@ from utils import plot
 # number of jobs for parallel processing with joblib
 n_jobs = multiprocessing.cpu_count()
 burstprops = pd.read_csv('./data/gillespie_burstprops.csv', comment='#')
-burstprops_paramarr = pd.read_csv('./data/gillespie_burstprops_paramarray.csv', comment='#')
+try:
+    burstprops_paramarr = pd.read_csv('./data/gillespie_burstprops_paramarray.csv', comment='#')
+except FileNotFoundError:
+    paramarraynotfound=1
+    pass
 samples = pd.read_csv('./data/gillespie_samples.csv', comment='#')
 outdir = './figures/output/'
 
@@ -68,19 +72,25 @@ axes = plot.ecdfplot(inter_burst[inter_burst.inter_burst>5], 'inter_burst')# sav
 [ax.set(xlim=(0,12), xlabel='Inter-Burst Duration') for ax in axes]
 plt.savefig(outdir+'FigS7_GillespieECDFinterburst.svg')
 
-# get interburst time for parameter array
-groupby = ['model','ctd','var_p','var_p_val','run']
-inter_burst_paramarr = Parallel(n_jobs=n_jobs)(delayed(quant.get_interb_time)
-    (groupedby, data, cols=groupby) for groupedby, data in\
-    tqdm(burstprops_paramarr[burstprops_paramarr.burst_size>0].groupby(groupby)))
-inter_burst_paramarr = pd.concat(inter_burst_paramarr, ignore_index=True)
-# Inter burst times resulting from parameter exploration as heatmap
-fig, axes = plt.subplots(2, figsize=(15,20))
-for ax, (title, group) in zip(axes, inter_burst_paramarr.groupby('model')):
-    plot.hmap_paramarr(group, 'inter_burst', ['var_p','var_p_val','ctd'], ax=ax, title=title, vmax=20, annot='all', ytick_symbol=False)
-[ax.set(xlabel='CTD Length') for ax in axes]
-plt.tight_layout()
-plt.savefig(outdir+'FigS8_interburst_paramarr.svg')
+if paramarraynotfound:
+    print("""
+    Stochastic simulations data with parameter array not found, skipping related figures.
+    """)
+    pass
+else:
+    # get interburst time for parameter array
+    groupby = ['model','ctd','var_p','var_p_val','run']
+    inter_burst_paramarr = Parallel(n_jobs=n_jobs)(delayed(quant.get_interb_time)
+        (groupedby, data, cols=groupby) for groupedby, data in\
+        tqdm(burstprops_paramarr[burstprops_paramarr.burst_size>0].groupby(groupby)))
+    inter_burst_paramarr = pd.concat(inter_burst_paramarr, ignore_index=True)
+    # Inter burst times resulting from parameter exploration as heatmap
+    fig, axes = plt.subplots(2, figsize=(15,20))
+    for ax, (title, group) in zip(axes, inter_burst_paramarr.groupby('model')):
+        plot.hmap_paramarr(group, 'inter_burst', ['var_p','var_p_val','ctd'], ax=ax, title=title, vmax=20, annot='all', ytick_symbol=False)
+    [ax.set(xlabel='CTD Length') for ax in axes]
+    plt.tight_layout()
+    plt.savefig(outdir+'FigS8_interburst_paramarr.svg')
 
 ###############################################################################
 # Fraction of active cells
@@ -110,27 +120,29 @@ plt.savefig(outdir+'FigS7_GillespieECDFBurstSize.svg')
 ## Burst size with parameter array
 ##############################################################################
 
-# params to plot
-plotval, params2plot = 'log_burst_size', ['phi','epsilon']
-# Burst sizes resulting from parameter exploration as heatmap
-bprops = burstprops_paramarr[(burstprops_paramarr.var_p.isin(params2plot))&(burstprops_paramarr.burst_size>0)].copy()
-# plot log otherwise hard to see; make sure data are numeric for log!
-bprops['log_burst_size'] = bprops.burst_size.apply(lambda x: np.log10(int(x)))
-fig, axes = plt.subplots(3, figsize=(17,7))
-for ax, (title, group) in zip(axes, bprops.groupby(['model','var_p'])):
-    plot.hmap_paramarr(group, plotval, ['var_p','var_p_val','ctd'],
-            vmin=bprops[plotval].min(), vmax=bprops[plotval].max(),
-            ax=ax, title=title)
-[ax.set(xlabel='') for ax in axes[:2]]
-ax.set(xlabel='CTD Length')
-plt.savefig(outdir+'Fig6_GillespieBurstSizePhiEps.svg')
+if paramarraynotfound: pass
+else:
+    # params to plot
+    plotval, params2plot = 'log_burst_size', ['phi','epsilon']
+    # Burst sizes resulting from parameter exploration as heatmap
+    bprops = burstprops_paramarr[(burstprops_paramarr.var_p.isin(params2plot))&(burstprops_paramarr.burst_size>0)].copy()
+    # plot log otherwise hard to see; make sure data are numeric for log!
+    bprops['log_burst_size'] = bprops.burst_size.apply(lambda x: np.log10(int(x)))
+    fig, axes = plt.subplots(3, figsize=(17,7))
+    for ax, (title, group) in zip(axes, bprops.groupby(['model','var_p'])):
+        plot.hmap_paramarr(group, plotval, ['var_p','var_p_val','ctd'],
+                vmin=bprops[plotval].min(), vmax=bprops[plotval].max(),
+                ax=ax, title=title)
+    [ax.set(xlabel='') for ax in axes[:2]]
+    ax.set(xlabel='CTD Length')
+    plt.savefig(outdir+'Fig6_GillespieBurstSizePhiEps.svg')
 
-fig, axes = plt.subplots(2, figsize=(15,20))
-for ax, (title, group) in zip(axes, burstprops_paramarr[burstprops_paramarr.burst_size>0].groupby('model')):
-    plot.hmap_paramarr(group, 'burst_size', ['var_p','var_p_val','ctd'], ax=ax, title=title, vmax=20, annot='all')
-[ax.set(xlabel='CTD Length') for ax in axes]
-plt.tight_layout()
-plt.savefig(outdir+'FigS8_burstsize_paramarr.svg')
+    fig, axes = plt.subplots(2, figsize=(15,20))
+    for ax, (title, group) in zip(axes, burstprops_paramarr[burstprops_paramarr.burst_size>0].groupby('model')):
+        plot.hmap_paramarr(group, 'burst_size', ['var_p','var_p_val','ctd'], ax=ax, title=title, vmax=20, annot='all')
+    [ax.set(xlabel='CTD Length') for ax in axes]
+    plt.tight_layout()
+    plt.savefig(outdir+'FigS8_burstsize_paramarr.svg')
 
 ###############################################################################
 ## QQ plots
