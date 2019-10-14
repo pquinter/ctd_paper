@@ -14,10 +14,11 @@ from utils import plot
 # number of jobs for parallel processing with joblib
 n_jobs = multiprocessing.cpu_count()
 burstprops = pd.read_csv('./data/gillespie_burstprops.csv', comment='#')
+paramarraynotfound = False
 try:
     burstprops_paramarr = pd.read_csv('./data/gillespie_burstprops_paramarray.csv', comment='#')
 except FileNotFoundError:
-    paramarraynotfound=1
+    paramarraynotfound+=1
     print("""
     Stochastic simulations data with parameter array not found, skipping related figures.
     """)
