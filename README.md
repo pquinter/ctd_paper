@@ -4,7 +4,8 @@ This repository contains all the code used for data analysis in the paper above 
 ## analysis
 Generate data that can be visualized: extract features from imaging, sequencing and simulation data.
 ## figures
-Generate all main and supplementary figures. All figures can be generated at once and saved in `figures/output` by running `python figures/*py` from this directory.
+Generate all main and supplementary figures. Every figure\*, can be generated and saved in `figures/output` by running `python figures/figureX.py` from this directory, where X is the figure number.
+\*Except for Figure S2, which requires a pickled classifier whose size is larger than github's file size limit.
 ## utils
 Supporting functions for data analysis.
 ## data

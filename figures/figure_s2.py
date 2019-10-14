@@ -6,8 +6,7 @@ from skimage import io
 import seaborn as sns
 from matplotlib import cm
 import pickle
-
-pp7data = pd.read_csv('./data/pp7movs_yQC21-23.csv')
+import sys
 
 ###############################################################################
 # 2D feature plots with GPC decision surface
@@ -15,9 +14,17 @@ pp7data = pd.read_csv('./data/pp7movs_yQC21-23.csv')
 
 clf_scaler_path = './data/pp7_GPClassifier.p'
 # load classifier and scaler
-with open(clf_scaler_path, 'rb') as f:
-    clf = pickle.load(f)
-    scaler = pickle.load(f)
+try:
+    with open(clf_scaler_path, 'rb') as f:
+        clf = pickle.load(f)
+        scaler = pickle.load(f)
+except FileNotFoundError:
+    print("""
+    Pickled classifier file to generate Figure S2 not found, skipping.
+    """)
+    sys.exit()
+
+pp7data = pd.read_csv('./data/pp7movs_yQC21-23.csv')
 
 # Training#####################################################################
 training_set = pd.read_csv('./data/pp7_trainingset.csv')
