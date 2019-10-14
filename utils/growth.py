@@ -6,6 +6,18 @@ import pandas as pd
 import numpy as np
 from utils.fitderivpackage103 import fitderiv
 
+def get_CTDr(strain):
+    """
+    Map CTD repeat number to strain name
+    """
+    CTDr_dict = {'TL47':26, 'yQC21':26, 'yQC5':14, 'yQC6':12, 'yQC7':10,
+            'yQC62':10, 'yQC63':9, 'yQC64':8, 'yQC15':10, 'yQC16':10}
+    # split line number from unique strain ID
+    if '.' in strain: strain = strain.split('.')[0]
+    elif '_' in strain: strain = strain.split('_')[0]
+    try: return CTDr_dict[strain]
+    except KeyError: return 0
+
 def tidy_growthcurve(data_path, layout_path, dt=15, temp=30):
     """
     Put growth curve data in tidy dataframe
