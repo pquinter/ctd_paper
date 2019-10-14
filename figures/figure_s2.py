@@ -12,7 +12,9 @@ import sys
 # 2D feature plots with GPC decision surface
 ###############################################################################
 
+pp7data = pd.read_csv('./data/pp7movs_yQC21-23.csv')
 clf_scaler_path = './data/pp7_GPClassifier.p'
+clfnotfound = False
 # load classifier and scaler
 try:
     with open(clf_scaler_path, 'rb') as f:
@@ -22,28 +24,28 @@ except FileNotFoundError:
     print("""
     Pickled classifier file to generate Figure S2 not found, skipping.
     """)
-    sys.exit()
+    clfnotfound = True
 
-pp7data = pd.read_csv('./data/pp7movs_yQC21-23.csv')
+if clfnotfound: pass
+else:
+    # Training#####################################################################
+    training_set = pd.read_csv('./data/pp7_trainingset.csv')
+    # scale features
+    scaled_lbld = scaler.transform(training_set[['corrwideal','mass_norm']].values)
+    axes = plot.plot2dDecisionFunc(clf, scaled_lbld, training_set.manual_label, figsize=(16, 12))
+    axes[1,0].set(xlim=(-2,4), ylim=(-2,6))
+    axes[0,0].set(xlim=(-2,4), ylim=(0,0.7))
+    axes[1,1].set(xlim=(-2,6), ylim=(0,0.7))
+    # save as png; SVG is messed up
+    plt.savefig('./figures/output/FigS2_Training2d.png')
 
-# Training#####################################################################
-training_set = pd.read_csv('./data/pp7_trainingset.csv')
-# scale features
-scaled_lbld = scaler.transform(training_set[['corrwideal','mass_norm']].values)
-axes = plot.plot2dDecisionFunc(clf, scaled_lbld, training_set.manual_label, figsize=(16, 12))
-axes[1,0].set(xlim=(-2,4), ylim=(-2,6))
-axes[0,0].set(xlim=(-2,4), ylim=(0,0.7))
-axes[1,1].set(xlim=(-2,6), ylim=(0,0.7))
-# save as png; SVG is messed up
-plt.savefig('./figures/output/FigS2_Training2d.png')
-
-# Classification###############################################################
-scaled_lbld = scaler.transform(pp7data[['corrwideal','mass_norm']].values)
-axes = plot.plot2dDecisionFunc(clf, scaled_lbld, pp7data.GPCprob>0.5, figsize=(16, 12))
-axes[1,1].set(ylim=(0,1.1), xlim=(-1,6))
-axes[0,0].set(xlim=(-2,4))
-axes[1,0].set(xlim=(-2,4), ylim=(-1,6))
-plt.savefig('./figures/output/FigS2_Data2dGPC.png')
+    # Classification###############################################################
+    scaled_lbld = scaler.transform(pp7data[['corrwideal','mass_norm']].values)
+    axes = plot.plot2dDecisionFunc(clf, scaled_lbld, pp7data.GPCprob>0.5, figsize=(16, 12))
+    axes[1,1].set(ylim=(0,1.1), xlim=(-1,6))
+    axes[0,0].set(xlim=(-2,4))
+    axes[1,0].set(xlim=(-2,4), ylim=(-1,6))
+    plt.savefig('./figures/output/FigS2_Data2dGPC.png')
 
 # F-1 score by Prob. threshold ################################################
 colors = {True:'#326976', False:'#da6363'}
