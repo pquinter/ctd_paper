@@ -114,15 +114,3 @@ axes[-1].set(xlabel='Normalized Fluorescence')
 #axes[2].set(ylabel='ECDF', xlim=(5,25), xticks=(np.arange(5, 26, 5)))
 plt.tight_layout()
 plt.savefig('./figures/output/Fig3_pp7snapshotfluor.svg')
-
-###############################################################################
-# Sample image of PP7 cell for diagram
-###############################################################################
-mov = io.imread('./data/pp7sample_02132019_yQC21_150u10%int480_1.tif')
-# frame number and coordinates for cell with active and inactive TS
-frame_no_active, frame_no_inactive = 38, 35
-coords = (slice(287, 357, None), slice(563, 649, None))# zoomed in manually and obtained with im_utils.zoom2roi func
-for frame_no, active in zip((frame_no_active, frame_no_inactive), ('active','inactive')):
-    im = mov[frame_no][coords]
-    io.imsave('./figures/output/yQC21pp7movsample_{}.tif'.format(active), im)
-# burn 1um scale bar in fiji, ~14 px long
