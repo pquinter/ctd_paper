@@ -1,6 +1,6 @@
 This directory contains R scripts to perform differential expression analysis
 of RNA-seq data using sleuth and a few linear models that group data
-differently. The model and grouping are specified at the beggining of each script.
+differently. The model and grouping are specified at the beginning of each script.
 
 All of the models include batch effects and galactose response through the
 'Replicate' and 'condition' coefficients, respectively.
