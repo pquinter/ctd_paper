@@ -11,8 +11,8 @@ from joblib import Parallel, delayed
 from tqdm import tqdm
 from utils import quant, plot
 
-samples = pd.read_csv('../output/simulation/gillespie_samples_manypol_vardelta.csv', comment='#')
-burstprops = pd.read_csv('../output/simulation/gillespie_burstprops_manypol_vardelta.csv', comment='#')
+samples = pd.read_csv('./data/gillespie_samples_manypol_vardelta.csv', comment='#')
+burstprops = pd.read_csv('./data/gillespie_burstprops_manypol_vardelta.csv', comment='#')
 
 # pivot to get individual traces for PIC, pol and pol_p
 traces = samples.pivot_table(index=['model','ctd','run','var_p_val'], columns='time', values=['pol_p'])
@@ -50,5 +50,5 @@ bs_dev['bs_dev'] = bs_dev.app_bs - bs_dev.burst_size
 bsdev_summ = bs_dev.groupby(['var_p_val','ctd'])[['bs_dev']].mean().reset_index()
 actcells_summ = active_cells_frac_mes.groupby(['var_p_val','ctd'])[['active_cells_frac']].mean().reset_index()
 bs_act_summ = pd.merge(bsdev_summ, actcells_summ, on=['var_p_val','ctd'])
-bs_act_summ.to_csv('../output/simulation/gillespie_bsize_obsvtrue.csv', index=False)
-burstprops_app.to_csv('../output/simulation/gillespie_burstpropsapp.csv', index=False)
+bs_act_summ.to_csv('./data/gillespie_bsize_obsvtrue.csv', index=False)
+burstprops_app.to_csv('./data/gillespie_burstpropsapp.csv', index=False)
