@@ -4,6 +4,7 @@ Compute statistics from gillespie simulations
 import pandas as pd
 import numpy as np
 import scipy.stats as stats
+import scipy.signal
 from joblib import Parallel, delayed
 from tqdm import tqdm
 import multiprocessing
@@ -67,3 +68,15 @@ def bs_frac_active(samples, no_bs=1000, t0=10, seed=42, n_jobs=n_jobs, **kwargs)
                 (time, samples, **kwargs) for time in tqdm(t_sample))
     return pd.concat(frac_active, ignore_index=True)
 
+def get_app_bs(model, ctd, run, delta, tr):
+    """ Compute apparent burst size from traces """
+    # get peak positions
+    peaks = scipy.signal.find_peaks(tr, distance=3, prominence=0.5*np.std(tr))
+    # get apparent burst size and save with metadata
+    burstprops = pd.DataFrame()
+    burstprops['app_bs'] = np.array([tr[p] for p in peaks[0]])
+    burstprops['model'] = model
+    burstprops['ctd'] = ctd
+    burstprops['run'] = run
+    burstprops['var_p_val'] = delta
+    return burstprops

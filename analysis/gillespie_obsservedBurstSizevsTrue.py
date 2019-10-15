@@ -6,7 +6,6 @@ from matplotlib import pyplot as plt
 import seaborn as sns
 import pandas as pd
 import numpy as np
-import scipy.signal
 from joblib import Parallel, delayed
 from tqdm import tqdm
 from utils import quant, plot
@@ -17,21 +16,8 @@ burstprops = pd.read_csv('./data/gillespie_burstprops_manypol_vardelta.csv', com
 # pivot to get individual traces for PIC, pol and pol_p
 traces = samples.pivot_table(index=['model','ctd','run','var_p_val'], columns='time', values=['pol_p'])
 
-def get_app_bs(_model, _ctd, _run, _delta, tr):
-    """ Compute apparent burst size from traces """
-    # get peak positions
-    peaks = scipy.signal.find_peaks(tr, distance=3, prominence=0.5*np.std(tr))
-    # get apparent burst size and save with metadata
-    _burstprops = pd.DataFrame()
-    _burstprops['app_bs'] = np.array([tr[p] for p in peaks[0]])
-    _burstprops['model'] = _model
-    _burstprops['ctd'] = _ctd
-    _burstprops['run'] = _run
-    _burstprops['var_p_val'] = _delta
-    return _burstprops
-
 # get apparent burst size
-burstprops_app =  Parallel(n_jobs=12)(delayed(get_app_bs)
+burstprops_app =  Parallel(n_jobs=12)(delayed(quant.get_app_bs)
                                   (_model, _ctd, _run, _delta, tr)
         for (_model, _ctd, _run, _delta), tr in tqdm(traces.iterrows()))
 burstprops_app = pd.concat((burstprops_app), ignore_index=True)
