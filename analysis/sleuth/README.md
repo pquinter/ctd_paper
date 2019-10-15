@@ -7,11 +7,12 @@ All of the models include batch effects and galactose response through the
 
 The genotypes are as follows:
 
-Genotype, description
-TL47, wild-type
-yQC7, truncated RPB1 with 10 CTD heptad repeats
-yQC15, truncated RPB1 with 10 CTD heptad repeats fused to FUS LCD
-yQC16, truncated RPB1 with 10 CTD heptad repeats fused to TAF15 LCD
+| Genotype | Description |
+| --- | --- |
+| TL47 | wild-type |
+| yQC7 | truncated RPB1 with 10 CTD heptad repeats |
+| yQC15 | truncated RPB1 with 10 CTD heptad repeats fused to FUS LCD |
+| yQC16 | truncated RPB1 with 10 CTD heptad repeats fused to TAF15 LCD |
 
 Sleuth reference:
 Harold J. Pimentel, Nicolas Bray, Suzette Puente, Páll Melsted and Lior Pachter (2017) Nature Methods. Differential analysis of RNA-Seq incorporating quantification uncertainty.
