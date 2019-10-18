@@ -51,6 +51,48 @@ def compute_mass(mask, im):
     try: return np.sum(mask*im)
     except ValueError: return np.nan
 
+def im_block(ims, cols, norm=True, sort=False):
+    """
+    Construct block of images
+
+    Arguments
+    ---------
+    ims: array or iterable of arrays
+        images to concatenate in block
+    cols: int
+        number of columns in image block
+    norm: bool
+        whether to normalize/scale each image
+    sort: False or function
+        whether to sort images with output value of function before making block
+
+    Returns
+    ---------
+    block: array
+
+    """
+    if not all(ims[0].shape==im.shape for im in ims):
+        warnings.warn('There are frames of different shapes. Resized with black pixels.')
+        max_h = max([im.shape[0] for im in ims])
+        max_w = max([im.shape[1] for im in ims])
+        ims = [resize_frame(im, max_h, max_w) for im in ims]
+    ims = np.stack(ims)
+    if sort:
+        if 'axis' in sort.__code__.co_varnames:# numpy function like max, min, mean
+            ims = ims[np.argsort(sort(sort(ims, axis=1), axis=1))]
+        else: # corr_widealspot and the likes working on image batches
+            ims = ims[np.argsort(sort(ims))]
+    if norm:
+        ims = normalize(ims)
+    # make image block
+    nrows = int(ims.shape[0]/cols)
+    xdim, ydim = ims.shape[1:]
+    block = []
+    for c in np.arange(0, cols*nrows, cols):
+        block.append(np.hstack(ims[c:c+cols]))
+    block = np.vstack(block)
+    return block
+
 def z_project(stack, project='max', mindim=2):
     """
     Z-project stack based on maximum value.
@@ -105,6 +147,43 @@ def remove_cs(im, perc=1e-4, tol=3, wsize=10):
     for (x,y) in zip(*cosmic_ix):
         frame[x,y] = np.median(frame[x-s:x+s, y-s:y+s])
     return frame
+
+def corr_widealspot(ims, wsize=None, PSFwidth=4.2, n_jobs=multiprocessing.cpu_count()):
+    """
+    Compute correlation of set of image patches to an ideal spot:
+    single point source blurred with gaussian of PSF width
+    Useful to filter spurious peaks in low signal to noise ratio images
+
+    Arguments
+    ---------
+    wsize: int
+        size of the window around spot
+    PSFwidth: float
+        width of the point spread function
+
+    Returns
+    ---------
+    corrs: array
+        correlations with ideal spot
+    """
+    if wsize is None:
+        wsize = ims.shape[-1]
+    # Create ideal spot
+    idealspot = np.full((wsize,wsize), 0) # zero filled wsize*wsize array
+    idealspot[wsize//2,wsize//2] = 1 # single light point source at the center
+    idealspot = skimage.filters.gaussian(idealspot, sigma=PSFwidth) # PSF width blur
+    # pearson corr on projected im is best, assuming im is centered at potential
+    # peak. This is usually eq to max of normalized cross-correlation.
+    # Also tried spearman and 3d stacks, slower and not worth it.
+    if ims.ndim>2:
+        corrs = Parallel(n_jobs=n_jobs)(delayed(np.corrcoef)(idealspot.ravel(), im.ravel())
+                           for im in tqdm(ims))
+        # retrieve relevant correlation coefficient from matrix
+        corrs = np.array([c[1][0] for c in corrs])
+        #corrs = np.array([np.corrcoef(idealspot.ravel(), im.ravel())[1][0] for im in ims])
+        return corrs
+    else:
+        return np.corrcoef(idealspot.ravel(), ims.ravel())[1][0]
 
 def regionprops2df(regionprops, props = ('label','area','bbox',
     'intensity_image', 'mean_intensity','max_intensity','min_intensity')):
@@ -371,6 +450,41 @@ def markers2rois(markers):
     # convert to slice objects
     rois = [(slice(xy[0],xy[2]), slice(xy[1],xy[3])) for xy in rois]
     return rois
+
+def load_zproject_STKcollection(load_pattern, savedir=None, n_jobs=6):
+    """
+    Load collection or single STK files and do maximum intensity projection
+
+    Arguments
+    ---------
+    load_pattern: str
+        pattern of file paths
+    savedir: str
+        directory to save projected images
+
+    Returns
+    ---------
+    projected: nd array or np stack
+        projected images
+
+    """
+    collection = io.ImageCollection(load_pattern, load_func=TiffFile)
+    projected = Parallel(n_jobs=n_jobs)(delayed(z_project)(zseries.asarray())
+                       for zseries in tqdm(collection))
+    #projected = []
+    #for zseries in collection:
+    #    _im = zseries.asarray()
+    #    if _im.ndim>2: _im = z_project(_im)
+    #    projected.append(_im)
+    if len(collection)>1:
+        projected = np.stack(projected)
+    else: projected = projected[0]
+    if savedir:
+        try:
+            io.imsave(savedir, projected)
+        except:
+            warnings.warn("Could not save image. Make sure {} exists".format(savedir))
+    return projected
 
 def load_zproject_STKimcollection(load_pattern, savedir=None, n_jobs=6):
     """
