@@ -1,5 +1,5 @@
 # RNA Pol II Length and Disorder Enable Cooperative Scaling of Transcriptional Bursting
-This repository contains all the code used for data analysis in the paper above by Porfirio Quintero-Cadena, Tineke L. Lenstra and Paul W. Sternberg.
+This repository contains all the code used for data analysis in [this paper](https://www.biorxiv.org/content/10.1101/825299v1) by Porfirio Quintero-Cadena, Tineke L. Lenstra and Paul W. Sternberg.
 
 Requires `python 3.6`
 
