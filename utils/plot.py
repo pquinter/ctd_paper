@@ -283,12 +283,36 @@ def scatter_coef(df, x_coef, y_coef, ax=None, auto_ref=True, alpha=0.2,
         # get correlation and use sign to plot reference
         corr = np.corrcoef(merge.b_x.values, merge.b_y.values)[0,1]
         print('Pearson correlation = {0:.2f}'.format(corr))
-        ax.scatter(xx.b.values, np.sign(corr) * xx.b.values,
+        ax.plot(xx.b.values, np.sign(corr) * xx.b.values, '--',
             s=1, rasterized=True, alpha=0.5, c=color_autoref)
         ax.legend(['Pearson correlation = {0:.2f}'.format(corr)], fontsize=20)
     ax.axhline(0, ls='--', alpha=0.1, color='k')
     ax.axvline(0, ls='--', alpha=0.1, color='k')
     ax.set(xlabel=x_coef, ylabel=y_coef)
+    plt.tight_layout()
+    return ax
+
+def volcano_plot(coef, df, ax=None, thresh=0.1,
+                        colors=('#326976','#99003d'), alpha=0.1):
+    """
+    Volcano plot, where y-axis is log10 q-value and
+    x-axis is beta, approximately log fold-change
+
+    coef: beta coefficient to plot
+    df: DataFrame containing beta and q-value by transcript
+        Must contain columns ['b','qval']
+    thresh: q-value threshold below which to make points red
+    ax: matplotlib axis
+    """
+
+    if ax is None: fig, ax = plt.subplots(figsize=(6,8))
+    df = df.loc[sleuth.coef==coef]
+    # split into significant and nonsignificant
+    nonsig = df.loc[df.qval>thresh]
+    sig = df.loc[df.qval<=thresh]
+    for data, c in zip((nonsig, sig), colors):
+        ax.scatter(data.b.values, -np.log10(data.qval.values), alpha=alpha, s=3, c=c)
+    ax.set(title=coef, xlabel='Beta', ylabel=r'-log$_{10}$(q-value)')
     plt.tight_layout()
     return ax
 
