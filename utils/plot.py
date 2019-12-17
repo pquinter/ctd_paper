@@ -284,7 +284,7 @@ def scatter_coef(df, x_coef, y_coef, ax=None, auto_ref=True, alpha=0.2,
         corr = np.corrcoef(merge.b_x.values, merge.b_y.values)[0,1]
         print('Pearson correlation = {0:.2f}'.format(corr))
         ax.plot(xx.b.values, np.sign(corr) * xx.b.values, '--',
-            s=1, rasterized=True, alpha=0.5, c=color_autoref)
+            rasterized=True, alpha=0.5, c=color_autoref)
         ax.legend(['Pearson correlation = {0:.2f}'.format(corr)], fontsize=20)
     ax.axhline(0, ls='--', alpha=0.1, color='k')
     ax.axvline(0, ls='--', alpha=0.1, color='k')
@@ -293,7 +293,7 @@ def scatter_coef(df, x_coef, y_coef, ax=None, auto_ref=True, alpha=0.2,
     return ax
 
 def volcano_plot(coef, df, ax=None, thresh=0.1,
-                        colors=('#326976','#99003d'), alpha=0.1):
+                        colors=('#326976','#99003d'), alpha=0.1, s=3):
     """
     Volcano plot, where y-axis is log10 q-value and
     x-axis is beta, approximately log fold-change
@@ -306,13 +306,13 @@ def volcano_plot(coef, df, ax=None, thresh=0.1,
     """
 
     if ax is None: fig, ax = plt.subplots(figsize=(6,8))
-    df = df.loc[sleuth.coef==coef]
+    df = df.loc[df.cid==coef]
     # split into significant and nonsignificant
     nonsig = df.loc[df.qval>thresh]
     sig = df.loc[df.qval<=thresh]
     for data, c in zip((nonsig, sig), colors):
-        ax.scatter(data.b.values, -np.log10(data.qval.values), alpha=alpha, s=3, c=c)
-    ax.set(title=coef, xlabel='Beta', ylabel=r'-log$_{10}$(q-value)')
+        ax.scatter(data.b.values, -np.log10(data.qval.values), alpha=alpha, s=s, c=c)
+    ax.set(xlabel='Beta', ylabel=r'-log$_{10}$(q-value)')
     plt.tight_layout()
     return ax
 
