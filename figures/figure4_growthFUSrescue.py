@@ -69,23 +69,19 @@ ax.set(yticks=np.arange(0, 2500, 500))
 plt.savefig('./figures/output/Fig4_RNAseqLolipop.svg')
 
 ###############################################################################
-# Scatter plot of interaction vs galactose coefficients
+# Volcano plots of interactions
 ###############################################################################
 
-plt.ioff()
+# coefficients and labels
 coefs = ['yQC7:galmain','yQC15:galmain','yQC16:galmain']
-coef_labels = ('Truncation','FUS fusion','TAF fusion')
-# GAL4 gene targets
-gal4targets = pd.read_csv('./data/gal4_targetgenes_ORegAnno20160119.csv')
-gal4targets = sleuth[sleuth.target_id.isin(gal4targets.Gene_ID.values)]
-for coef, clabel in zip(coefs, coef_labels):
-    fig, ax = plt.subplots(figsize=(10,10))
-    ax = plot.scatter_coef(sleuth, 'galmain', coef, ax=ax)
-    # plot gal4 targets on top in orange
-    plot.scatter_coef(gal4targets, 'galmain', coef, color='#f85f68', ax=ax,
-                                    alpha=0.8, auto_ref=False)
-    ax.set(ylabel='Interaction ({})'.format(clabel), xlabel='Galactose')# xlim=(-6.5, 3), ylim=(-3, 7))
-    plt.savefig('./figures/output/Fig4_RNAseqScatter_Int_{}.svg'.format(clabel.split(' ')[0]))
+coef_labels = ['Truncation','FUS fusion','TAF fusion']
+
+plt.ioff()
+fig, axes = plt.subplots(1,3, figsize=(22,9), sharey=False, sharex=True)
+[plot.volcano_plot(coef, sleuth, ax, s=5, alpha=0.1) for coef, ax in zip(coefs, axes.ravel())]
+[ax.set(ylim=(-0.1, 10.1), xlabel='log Fold-change\n({} Interaction)'.format(clabel))\
+                            for ax,clabel in zip(axes.ravel(), coef_labels)]
+plt.savefig('./figures/output/Fig4_VolcanoRnaseq_Int.svg')
 
 ###############################################################################
 # Scatter plot of galactose only coefficients
@@ -93,12 +89,12 @@ for coef, clabel in zip(coefs, coef_labels):
 
 coefs = ['yQC7gal_only','yQC15gal_only','yQC16gal_only']
 for coef, clabel in zip(coefs, coef_labels):
-    fig, ax = plt.subplots(figsize=(9.5,10))
+    fig, ax = plt.subplots(figsize=(9,9))
     ax = plot.scatter_coef(sleuth, 'TL47gal_only', coef, ax=ax)
     # plot gal4 targets on top in orange
     plot.scatter_coef(gal4targets, 'TL47gal_only', coef, color='#f85f68', ax=ax,
                                                 alpha=0.5, auto_ref=False)
-    ax.set(ylabel='Galactose ({})'.format(clabel), xlabel='Galactose (Wild-type)')
+    ax.set(ylabel='log Fold-change\n(Galactose, {})'.format(clabel), xlabel='log Fold-change\n(Galactose, Wild-type)')
     plt.savefig('./figures/output/Fig4_RNAseqScatter_GalOnly_{}.svg'.format(clabel.split(' ')[0]))
 
 ###############################################################################
