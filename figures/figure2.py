@@ -89,5 +89,5 @@ gal4targets = sleuth[sleuth.target_id.isin(gal4targets.Gene_ID.values)]
 # plot on top with different color
 plot.scatter_coef(gal4targets, 'galmain', 'yQC7:galmain', auto_ref=False,
                                         color='#f85f68', alpha=0.8, ax=ax)
-ax.set(ylabel='Interaction', xlabel='Galactose')
+ax.set(ylabel='log Fold-change\n(Interaction)', xlabel='log Fold-change\n(Galactose)')
 plt.savefig('./figures/output/Fig2_RNAseqScatter.svg')
