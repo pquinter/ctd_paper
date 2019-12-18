@@ -114,7 +114,7 @@ plt.savefig('./figures/output/FigS5_RNAseqLolipop_LCD.svg')
 ###############################################################################
 fig, ax = plt.subplots(figsize=(10,8))
 ax = plot.scatter_coef(sleuth, 'yQC15main', 'yQC16main', ax=ax)
-ax.set(ylabel='TAF fusion',xlabel='FUS fusion')
+ax.set(ylabel='log Fold-change\n(TAF fusion)',xlabel='log Fold-change\n(FUS fusion)')
 plt.savefig('./figures/output/FigS5_RNAseqScatter_FUSvTAF.svg')
 
 fig, ax = plt.subplots(figsize=(10,8))
