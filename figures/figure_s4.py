@@ -5,6 +5,7 @@ import numpy as np
 from joblib import Parallel, delayed
 from utils import plot
 
+from ast import literal_eval
 
 ###############################################################################
 
@@ -12,7 +13,7 @@ aacount = pd.read_csv('./data/fustafctd_aacount.csv')
 # get order to sort by frequency in CTD
 order = aacount[aacount.protein=='CTD'].sort_values('freq', ascending=False).aminoacid.values
 colors = {'CTD':'#326976', 'FUS':'#da6363','TAF15':'#7a324c'}
-fig, ax = plt.subplots(figsize=(14,8))
+fig, ax = plt.subplots(figsize=(12,8))
 sns.stripplot(x='aminoacid', y='freq', hue='protein', data=aacount, ax=ax,
         palette=colors, s=15, alpha=0.5, order=order)
 ax.set(xlabel='Amino acid', ylabel='Frequency')
@@ -21,6 +22,32 @@ plt.tight_layout()
 plt.savefig('./figures/output/FigS4_aaComp.svg')
 
 ###############################################################################
+# Disorder probabilities in FUS and TAF15LCDs
+###############################################################################
+
+fustaf_disorder = pd.read_csv('./data/fus_taf_mobidb.csv')
+# convert to probs back to array (for some reason they are stored as strings)
+fustaf_disorder['p'] = fustaf_disorder.p.apply(literal_eval)
+# get yeast CTD data as well
+rpb1data = pd.read_csv('./data/rpb1_seq_props.csv')
+# convert to probs back to array (for some reason they are stored as strings)
+rpb1data['p'] = rpb1data.p.apply(literal_eval)
+yCTD = rpb1data.loc[rpb1data.species_long.str.contains('cerevisiae')]
+
+# Get disorder probabilities
+dis_probs = fustaf_disorder.p.apply(pd.Series).values
+# add yeast CTD, starts in amino acid
+yCTD = np.array(yCTD.p.values[0][1534:] + [np.nan]*15)
+dis_probs = pd.DataFrame(np.vstack((dis_probs, yCTD)))
+
+fig, ax = plt.subplots(1, figsize=(30, 8))
+ax.plot(dis_probs.iloc[0].values, '-', c=colors['FUS'], lw=3, alpha=0.6, label='FUS LCD')
+ax.plot(dis_probs.iloc[1].values, '-', c=colors['TAF15'], lw=3, alpha=0.6, label='TAF15 LCD')
+ax.plot(dis_probs.iloc[2].values, '-', c=colors['CTD'], lw=3, alpha=0.6, label='CTD')
+# plot 0.5 threshold
+ax.axhline(0.5, ls='--', c='k')
+ax.set(ylim=(0,1.05), ylabel='Disorder Probability', xlabel='Residue Position', yticks=np.arange(0,1.1, 0.25))
+plt.tight_layout()
 
 ###############################################################################
 # Binding rates (slopes) re-plotted from Kwon et al (2013) Cell
