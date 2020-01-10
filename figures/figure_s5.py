@@ -121,3 +121,19 @@ fig, ax = plt.subplots(figsize=(10,8))
 ax = plot.scatter_coef(sleuth, 'LDshortLDgroup', 'LDLDLDgroup', ax=ax)
 ax.set(ylabel='log Fold-change\n(Truncation + LCD fusion)',xlabel='log Fold-change\n(Truncation)')
 plt.savefig('./figures/output/FigS5_RNAseqScatter_LDshortLD.svg')
+
+###############################################################################
+# mRNA molecules per cell ECDF from smFISH
+###############################################################################
+parts = pd.read_csv('/Users/porfirio/lab/yeastEP/figures_paper/data/smFISH_GAL10_GAL3_mRNAperCell.csv')
+parts = parts[parts.strain.isin(['TL47','yQC62','yQC15','yQC16'])]
+parts = parts[parts.date==9132019] # only determined threshold for this exp
+
+order = ['TL47','yQC62','yQC16','yQC15']
+colors = {s:c for s,c in zip(order,['#326976', '#98b4ba','#823b3b','#da6363'])}
+for gene, _parts in parts.groupby(['gene','date']):
+    fig, ax = plt.subplots(figsize=(9, 8))
+    ax = plot.ecdfbystrain('num_spots', _parts, groupby='strain', colors=colors, ax=ax, formal=True, line_kws={'alpha':1, 'rasterized':True})
+    ax.set(xlabel='mRNA molecules per cell', ylabel='ECDF', title=gene[0].upper())
+    plt.tight_layout()
+    plt.savefig('./figures/output/FigS5_ECDF_mRNAperCell_{}.svg'.format(gene))
