@@ -38,14 +38,24 @@ plt.tight_layout()
 plt.savefig('./figures/output/Fig2_growthrates.png')
 
 ###############################################################################
-# RPB1 nuclear fluorescence
+# RPB1/RPB3 nuclear fluorescence
 ###############################################################################
-rpb1fluor = pd.read_csv('./data/mScarRPB1_05212019_quantiles.csv')
+rpb1fluor = pd.read_csv('./data/mScarRPB1_052019_mean.csv')
 fig, ax = plt.subplots(figsize=(14, 8))
-ax = plot.ecdfbystrain('0.95_quant_nc', rpb1fluor, ax=ax)
-ax.set(xlabel='Nuclear Fluorescence (a.u.)', ylabel='ECDF', xlim=(100, 1250))
+ax = plot.ecdfbystrain('mean_intensity_nuc', rpb1fluor, ax=ax, formal=True,
+                                    line_kws = {'alpha':0.8,'rasterized':True})
+ax.set(xlabel='RPB1 Nuclear Fluorescence (a.u.)', ylabel='ECDF', xlim=(230, 900))
 plt.tight_layout()
-plt.savefig('./figures/output/Fig2_rpb1fluor_.svg')
+plt.savefig('./figures/output/Fig2_rpb1fluor.svg')
+
+rpb3fluor = pd.read_csv('./data/mScarRPB3_022020_mean.csv')
+rpb3fluor = rpb3fluor[~(rpb3fluor.strain.isin([15,16]))]
+fig, ax = plt.subplots(figsize=(10, 8))
+ax = plot.ecdfbystrain('mean_intensity_nuc', rpb3fluor, ax=ax, formal=True,
+                                    line_kws = {'alpha':0.8,'rasterized':True})
+ax.set(xlabel='RPB3 Nuclear Fluorescence (a.u.)', ylabel='ECDF', xlim=(120, 600))
+plt.tight_layout()
+plt.savefig('./figures/output/Fig2_rpb3fluor.svg')
 
 ###############################################################################
 # RNA-seq
