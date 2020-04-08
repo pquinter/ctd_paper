@@ -1,4 +1,7 @@
 # RNA Pol II Length and Disorder Enable Cooperative Scaling of Transcriptional Bursting
+
+[![DOI](https://data.caltech.edu/badge/215094635.svg)](https://data.caltech.edu/badge/latestdoi/215094635)
+
 This repository contains all the code used for data analysis in [this paper](https://www.biorxiv.org/content/10.1101/825299v1) by Porfirio Quintero-Cadena, Tineke L. Lenstra and Paul W. Sternberg.
 
 Requires `python 3.6`
