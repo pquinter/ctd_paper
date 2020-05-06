@@ -311,7 +311,8 @@ def volcano_plot(coef, df, ax=None, thresh=0.1,
     nonsig = df.loc[df.qval>thresh]
     sig = df.loc[df.qval<=thresh]
     for data, c in zip((nonsig, sig), colors):
-        ax.scatter(data.b.values, -np.log10(data.qval.values), alpha=alpha, s=s, c=c)
+        ax.scatter(data.b.values, -np.log10(data.qval.values), alpha=alpha,
+                s=s, c=c, rasterized=True)
     ax.set(xlabel='Beta', ylabel=r'-log$_{10}$(q-value)')
     plt.tight_layout()
     return ax
