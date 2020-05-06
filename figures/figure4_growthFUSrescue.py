@@ -108,9 +108,9 @@ colors = {s:c for s,c in zip(order,['#326976', '#98b4ba','#823b3b','#da6363'])}
 for gene, _freq_df in freq_df.groupby('gene'):
     fig, ax = plt.subplots(figsize=(9,8))
     sns.stripplot(y='strain', x='frac_active', data=_freq_df,
-        ax=ax, alpha=0.3, order=order, palette=colors, size=10)
+        ax=ax, alpha=0.3, order=order, palette=colors, size=10, rasterized=True)
     sns.pointplot(y='strain', x='frac_active', data=_freq_df,
-        order=order, ax=ax, alpha=1, palette=colors, size=20, join=False, ci=99)
+        order=order, ax=ax, alpha=1, palette=colors, size=20, join=False, ci=99, rasterized=True)
     # below two lines to draw points over strip plot
     plt.setp(ax.lines, zorder=100)
     plt.setp(ax.collections, zorder=100, label="")
